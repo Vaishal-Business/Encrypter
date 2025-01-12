@@ -4,11 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complex Encryption System</title>
+    <title>RSA Key Encryption/Decryption</title>
 </head>
 
 <body>
-    <h1>Encryption/Decryption System</h1>
+    <h1>RSA Encryption/Decryption System</h1>
+
+    <!-- Key Generation Section -->
+    <div>
+        <h2>Generate RSA Key Pair</h2>
+        <button onclick="generateRSAKeyPair()">Generate RSA Key Pair</button><br><br>
+        <p><strong>Public Key:</strong></p>
+        <textarea id="publicKey" rows="4" cols="50" readonly></textarea>
+        <button onclick="copyToClipboard('publicKey')">Copy Public Key</button><br><br>
+        <p><strong>Private Key:</strong></p>
+        <textarea id="privateKey" rows="4" cols="50" readonly></textarea>
+        <button onclick="copyToClipboard('privateKey')">Copy Private Key</button><br><br>
+    </div>
+
+    <!-- Key Set Section -->
+    <div>
+        <h2>Set RSA Private Key (for Decryption)</h2>
+        <textarea id="privateKeyInput" rows="4" cols="50"></textarea><br><br>
+        <button onclick="setPrivateKey()">Set Private Key</button><br><br>
+        <p><strong>Status:</strong> <span id="keyStatus">No key set</span></p>
+    </div>
+
+    <!-- Encrypt Message Section -->
     <div>
         <h2>Encrypt Message</h2>
         <textarea id="messageToEncrypt" rows="4" cols="50"></textarea><br><br>
@@ -17,6 +39,7 @@
         <textarea id="encryptedMessage" rows="4" cols="50" readonly></textarea>
     </div>
 
+    <!-- Decrypt Message Section -->
     <div>
         <h2>Decrypt Message</h2>
         <textarea id="messageToDecrypt" rows="4" cols="50"></textarea><br><br>
@@ -26,107 +49,129 @@
     </div>
 
     <script>
-        // Helper function to convert a string to an array buffer
-        async function strToArrayBuffer(str) {
-            const encoder = new TextEncoder();
-            return encoder.encode(str);
-        }
+        let privateKey = null; // Store private key here
 
-        // Helper function to generate a random encryption key (AES key)
-        async function generateKey() {
-            const key = await crypto.subtle.generateKey(
+        // Generate RSA Key Pair
+        async function generateRSAKeyPair() {
+            const keyPair = await window.crypto.subtle.generateKey(
                 {
-                    name: "AES-GCM",
-                    length: 256, // 256-bit key for AES
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256"
                 },
                 true,
                 ["encrypt", "decrypt"]
             );
-            return key;
+
+            // Export keys as JWK format
+            const exportedPublicKey = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+            const exportedPrivateKey = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
+
+            // Display the public key in a more readable format
+            document.getElementById("publicKey").value = `Modulus (n): ${exportedPublicKey.n}\nExponent (e): ${exportedPublicKey.e}`;
+            document.getElementById("privateKey").value = `Private Key (d): ${exportedPrivateKey.d}\nModulus (n): ${exportedPrivateKey.n}\nExponent (e): ${exportedPrivateKey.e}`;
+
+            // You could also store/export the key pair for further use, but we'll keep it in the browser session for now.
         }
 
-        // Encrypt the message
+        // Set Private Key
+        function setPrivateKey() {
+            const privateKeyInput = document.getElementById("privateKeyInput").value;
+            if (privateKeyInput) {
+                privateKey = JSON.parse(privateKeyInput);
+                document.getElementById("keyStatus").textContent = "Private key set";
+            } else {
+                document.getElementById("keyStatus").textContent = "No key set";
+            }
+        }
+
+        // Encrypt Message
         async function encryptMessage() {
             const message = document.getElementById("messageToEncrypt").value;
             if (!message) return alert("Please enter a message to encrypt.");
 
-            // Generate a unique encryption key for this session
-            const key = await generateKey();
+            const publicKeyInput = document.getElementById("publicKey").value;
+            if (!publicKeyInput) return alert("No public key available for encryption.");
 
-            // Convert the message to an array buffer
-            const encodedMessage = await strToArrayBuffer(message);
+            // Import public key from the displayed public key
+            const publicKeyJWK = {
+                kty: "RSA",
+                n: publicKeyInput.split("\n")[0].split(": ")[1], // Modulus (n)
+                e: publicKeyInput.split("\n")[1].split(": ")[1], // Exponent (e)
+                alg: "RSA-OAEP-256",
+                ext: true,
+                key_ops: ["encrypt"]
+            };
 
-            // Generate a random initialization vector (IV)
-            const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM requires a 12-byte IV
+            const publicKey = await crypto.subtle.importKey(
+                "jwk",
+                publicKeyJWK,
+                { name: "RSA-OAEP", hash: "SHA-256" },
+                false,
+                ["encrypt"]
+            );
 
-            // Encrypt the message
+            // Encode message
+            const encodedMessage = new TextEncoder().encode(message);
+
+            // Encrypt message
             const encryptedBuffer = await crypto.subtle.encrypt(
                 {
-                    name: "AES-GCM",
-                    iv: iv,
+                    name: "RSA-OAEP"
                 },
-                key,
+                publicKey,
                 encodedMessage
             );
 
-            // Combine the IV and the encrypted message for storage (base64 encoded)
-            const combinedData = new Uint8Array(iv.length + encryptedBuffer.byteLength);
-            combinedData.set(iv, 0);
-            combinedData.set(new Uint8Array(encryptedBuffer), iv.length);
-
-            // Store the encryption key for decryption
-            const exportedKey = await crypto.subtle.exportKey("jwk", key);
-            localStorage.setItem("encryptionKey", JSON.stringify(exportedKey));
-
-            const encryptedMessage = btoa(String.fromCharCode.apply(null, combinedData));
+            // Convert encrypted message to base64 for display
+            const encryptedMessage = btoa(String.fromCharCode.apply(null, new Uint8Array(encryptedBuffer)));
             document.getElementById("encryptedMessage").value = encryptedMessage;
         }
 
-        // Decrypt the message
+        // Decrypt Message
         async function decryptMessage() {
             const encryptedMessage = document.getElementById("messageToDecrypt").value;
             if (!encryptedMessage) return alert("Please enter a message to decrypt.");
 
-            // Retrieve the stored encryption key
-            const storedKey = localStorage.getItem("encryptionKey");
-            if (!storedKey) return alert("No key found. Please encrypt a message first.");
+            if (!privateKey) return alert("Private key not set. Please set the private key.");
 
-            // Re-import the key from storage
-            const importedKey = await crypto.subtle.importKey(
+            // Decode the encrypted message from base64
+            const encryptedBuffer = new Uint8Array(atob(encryptedMessage).split("").map(char => char.charCodeAt(0)));
+
+            // Import private key
+            const importedPrivateKey = await crypto.subtle.importKey(
                 "jwk",
-                JSON.parse(storedKey),
-                { name: "AES-GCM" },
-                true,
+                privateKey,
+                { name: "RSA-OAEP", hash: "SHA-256" },
+                false,
                 ["decrypt"]
             );
 
-            // Convert the base64 encoded message back to bytes
-            const encryptedData = new Uint8Array(atob(encryptedMessage).split("").map(char => char.charCodeAt(0)));
-
-            // Extract the IV (first 12 bytes)
-            const iv = encryptedData.slice(0, 12);
-
-            // Extract the encrypted message (after the IV)
-            const encryptedBuffer = encryptedData.slice(12);
-
-            // Decrypt the message using the stored key and IV
             try {
+                // Decrypt the message
                 const decryptedBuffer = await crypto.subtle.decrypt(
                     {
-                        name: "AES-GCM",
-                        iv: iv,
+                        name: "RSA-OAEP"
                     },
-                    importedKey,
+                    importedPrivateKey,
                     encryptedBuffer
                 );
 
-                // Convert the decrypted buffer back to a string
-                const decoder = new TextDecoder();
-                const decryptedMessage = decoder.decode(decryptedBuffer);
+                // Decode and display the decrypted message
+                const decryptedMessage = new TextDecoder().decode(decryptedBuffer);
                 document.getElementById("decryptedMessage").value = decryptedMessage;
             } catch (error) {
-                alert("Decryption failed! Invalid or mismatched data.");
+                alert("Decryption failed! Invalid or mismatched key.");
             }
+        }
+
+        // Copy content to clipboard
+        function copyToClipboard(id) {
+            const textArea = document.getElementById(id);
+            textArea.select();
+            document.execCommand("copy");
+            alert(`${id} copied to clipboard!`);
         }
     </script>
 </body>
