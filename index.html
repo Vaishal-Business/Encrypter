@@ -4,48 +4,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSA Key Encryption/Decryption</title>
+    <title>RSA Key Encryption/Decryption System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #2c3e50, #3498db);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 3rem;
+        }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #34495e;
+            border: none;
+            border-radius: 10px;
+            color: #ecf0f1;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            padding: 10px;
+            resize: none;
+        }
+
+        button {
+            background-color: #e74c3c;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #fff;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            color: #f39c12;
+            text-align: center;
+        }
+
+        .key-section {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .key-box {
+            flex-basis: 48%;
+            padding: 15px;
+            margin: 10px;
+            background-color: #34495e;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .key-box textarea {
+            height: 120px;
+        }
+
+        .key-box button {
+            width: 100%;
+        }
+
+        .copy-button {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>RSA Encryption/Decryption System</h1>
+    <h1>RSA Key Encryption/Decryption System</h1>
 
-    <!-- Key Generation Section -->
-    <div>
-        <h2>Generate RSA Key Pair</h2>
-        <button onclick="generateRSAKeyPair()">Generate RSA Key Pair</button><br><br>
-        <p><strong>Public Key:</strong></p>
-        <textarea id="publicKey" rows="4" cols="50" readonly></textarea>
-        <button onclick="copyToClipboard('publicKey')">Copy Public Key</button><br><br>
-        <p><strong>Private Key:</strong></p>
-        <textarea id="privateKey" rows="4" cols="50" readonly></textarea>
-        <button onclick="copyToClipboard('privateKey')">Copy Private Key</button><br><br>
-    </div>
+    <div class="container">
+        <!-- Key Generation Section -->
+        <div class="key-section">
+            <div class="key-box">
+                <h2>Generate RSA Key Pair</h2>
+                <button onclick="generateRSAKeyPair()">Generate RSA Key Pair</button><br><br>
+                <p><strong>Public Key (JWK):</strong></p>
+                <textarea id="publicKey" readonly></textarea>
+                <button onclick="copyToClipboard('publicKey')" class="copy-button">Copy Public Key</button><br><br>
+            </div>
+            <div class="key-box">
+                <h2>Private Key (JWK)</h2>
+                <p><strong>Private Key (JWK):</strong></p>
+                <textarea id="privateKey" readonly></textarea>
+                <button onclick="copyToClipboard('privateKey')" class="copy-button">Copy Private Key</button><br><br>
+            </div>
+        </div>
 
-    <!-- Key Set Section -->
-    <div>
-        <h2>Set RSA Private Key (for Decryption)</h2>
-        <textarea id="privateKeyInput" rows="4" cols="50"></textarea><br><br>
-        <button onclick="setPrivateKey()" id=""privateKeyInput">Set Private Key</button><br><br>
-        <p><strong>Status:</strong> <span id="keyStatus">No key set</span></p>
-    </div>
+        <!-- Key Set Section -->
+        <div>
+            <h2>Set RSA Private Key (for Decryption)</h2>
+            <textarea id="privateKeyInput" rows="4" cols="50"></textarea><br><br>
+            <button onclick="setPrivateKey()">Set Private Key</button><br><br>
+            <p class="status" id="keyStatus">No key set</p>
+        </div>
 
-    <!-- Encrypt Message Section -->
-    <div>
-        <h2>Encrypt Message</h2>
-        <textarea id="messageToEncrypt" rows="4" cols="50"></textarea><br><br>
-        <button onclick="encryptMessage()">Encrypt</button><br><br>
-        <p><strong>Encrypted Message:</strong></p>
-        <textarea id="encryptedMessage" rows="4" cols="50" readonly></textarea>
-    </div>
+        <!-- Encrypt Message Section -->
+        <div>
+            <h2>Encrypt Message</h2>
+            <textarea id="messageToEncrypt" rows="4" cols="50"></textarea><br><br>
+            <button onclick="encryptMessage()">Encrypt</button><br><br>
+            <p><strong>Encrypted Message:</strong></p>
+            <textarea id="encryptedMessage" readonly></textarea><br><br>
+            <button onclick="copyToClipboard('encryptedMessage')" class="copy-button">Copy Encrypted Message</button>
+        </div>
 
-    <!-- Decrypt Message Section -->
-    <div>
-        <h2>Decrypt Message</h2>
-        <textarea id="messageToDecrypt" rows="4" cols="50"></textarea><br><br>
-        <button onclick="decryptMessage()">Decrypt</button><br><br>
-        <p><strong>Decrypted Message:</strong></p>
-        <textarea id="decryptedMessage" rows="4" cols="50" readonly></textarea>
+        <!-- Decrypt Message Section -->
+        <div>
+            <h2>Decrypt Message</h2>
+            <textarea id="messageToDecrypt" rows="4" cols="50"></textarea><br><br>
+            <button onclick="decryptMessage()">Decrypt</button><br><br>
+            <p><strong>Decrypted Message:</strong></p>
+            <textarea id="decryptedMessage" readonly></textarea><br><br>
+            <button onclick="copyToClipboard('decryptedMessage')" class="copy-button">Copy Decrypted Message</button>
+        </div>
     </div>
 
     <script>
@@ -68,11 +168,9 @@
             const exportedPublicKey = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
             const exportedPrivateKey = await crypto.subtle.exportKey("jwk", keyPair.privateKey);
 
-            // Display the public key in a more readable format
-            document.getElementById("publicKey").value = `Modulus (n): ${exportedPublicKey.n}\nExponent (e): ${exportedPublicKey.e}`;
-            document.getElementById("privateKey").value = `Private Key (d): ${exportedPrivateKey.d}\nModulus (n): ${exportedPrivateKey.n}\nExponent (e): ${exportedPrivateKey.e}`;
-
-            // You could also store/export the key pair for further use, but we'll keep it in the browser session for now.
+            // Display the keys in JWK format
+            document.getElementById("publicKey").value = JSON.stringify(exportedPublicKey, null, 4);
+            document.getElementById("privateKey").value = JSON.stringify(exportedPrivateKey, null, 4);
         }
 
         // Set Private Key
@@ -95,14 +193,7 @@
             if (!publicKeyInput) return alert("No public key available for encryption.");
 
             // Import public key from the displayed public key
-            const publicKeyJWK = {
-                kty: "RSA",
-                n: publicKeyInput.split("\n")[0].split(": ")[1], // Modulus (n)
-                e: publicKeyInput.split("\n")[1].split(": ")[1], // Exponent (e)
-                alg: "RSA-OAEP-256",
-                ext: true,
-                key_ops: ["encrypt"]
-            };
+            const publicKeyJWK = JSON.parse(publicKeyInput);
 
             const publicKey = await crypto.subtle.importKey(
                 "jwk",
