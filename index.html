@@ -8,91 +8,87 @@
     <style>
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* Dark gradient for a spy-like atmosphere */
-    color: #e0e0e0;
+    background: linear-gradient(to bottom, #101010, #1a1a1a); /* Dark, minimalistic background */
+    color: #ffffff;
     margin: 0;
     padding: 0;
-    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9); /* Shadow for depth */
 }
 
 h1, h2 {
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
-    color: #ff4d4d; /* Intense red for high-alert feel */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    color: #ff414d; /* Sharp red for contrast and urgency */
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
 }
 
 h1 {
-    margin-top: 20px;
-    font-size: 3rem;
+    margin-top: 30px;
+    font-size: 2.8rem;
     letter-spacing: 2px;
 }
 
 .container {
-    width: 90%;
-    max-width: 1100px;
-    margin: 20px auto;
+    max-width: 900px;
+    margin: 0 auto;
     padding: 25px;
-    background-color: rgba(15, 15, 15, 0.95); /* Dark background with opacity for layered feel */
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8); /* Deep shadow for elevation */
+    background-color: rgba(20, 20, 20, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8); /* Subtle depth effect */
 }
 
 textarea {
     width: 100%;
-    height: 150px;
-    background-color: #1b1b1b;
-    border: 1px solid #444;
+    height: 140px;
+    background-color: #121212;
+    border: 1px solid #333;
     border-radius: 8px;
-    color: #b0bec5;
+    color: #f0f0f0;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    padding: 10px;
-    resize: none;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+    font-size: 16px;
+    padding: 12px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.7);
 }
 
 button {
-    background-color: #ff4d4d;
+    background-color: #ff414d;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 25px;
     font-size: 1rem;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     color: #fff;
     margin-top: 10px;
-    transition: background-color 0.3s, transform 0.1s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
 }
 
 button:hover {
-    background-color: #e53935;
+    background-color: #e12c39;
     transform: scale(1.05);
 }
 
 .status {
     font-size: 1.1rem;
-    color: #ffab40;
+    color: #ffae00;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 .key-section {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
 }
 
 .key-box {
-    flex: 1 1 calc(50% - 15px);
     padding: 20px;
     background-color: rgba(30, 30, 30, 0.9);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
 }
 
 .key-box textarea {
-    height: 120px;
+    height: 110px;
 }
 
 .key-box button {
@@ -100,22 +96,23 @@ button:hover {
 }
 
 .copy-button {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     h1 {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
     }
 
-    .key-box {
-        flex: 1 1 100%;
+    .container {
+        padding: 20px;
     }
 
     textarea {
-        font-size: 13px;
+        font-size: 14px;
     }
 }
+
 
     </style>
 </head>
